@@ -36,7 +36,7 @@ def shutdown():
     io_loop.stop()
 
 
-def init_publisher():
+def rmq_init():
     rmq = TornadoPikaPublisher('amqp://guest:guest@rmq:5672/%2F')
     rmq.run()
 
@@ -44,14 +44,11 @@ def init_publisher():
 if __name__ == '__main__':
     signal.signal(signal.SIGTERM, sig_handler)
 
+    # Connect to RMQ
+    rmq_init()
+
     # Set up the Tornado application object
     app = make_app()
     app.listen(8000)
 
-    ioloop_instance = tornado.ioloop.IOLoop.current()
-
-    # Comment to "fix" memory leak
-    ioloop_instance.add_timeout(time.time() + 1, init_publisher)
-
-    ioloop_instance.start()
-
+    ioloop_instance = tornado.ioloop.IOLoop.current().start()
