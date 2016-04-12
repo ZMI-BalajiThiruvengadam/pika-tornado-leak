@@ -1,5 +1,4 @@
 import signal
-import time
 import tornado.gen
 import tornado.ioloop
 import tornado.web
