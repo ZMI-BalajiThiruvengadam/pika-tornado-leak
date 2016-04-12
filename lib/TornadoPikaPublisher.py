@@ -20,7 +20,7 @@ class TornadoPikaPublisher(object):
     RECONNECT_TRIES = 3
     RECONNECT_DELAY_SEC = 5
 
-    def __init__(self, a_exchange='test', a_exchange_type='topic', a_delivery_confirmation=False):
+    def __init__(self, amqp_url):
         """Setup the example publisher object, passing in the URL we will use
         to connect to RabbitMQ.
 
@@ -32,18 +32,11 @@ class TornadoPikaPublisher(object):
         self._stopping = False
         self._closing = False
 
-        self.exchange = a_exchange
-        self.exchange_type = a_exchange_type
-        self.delivery_confirmation = a_delivery_confirmation
+        self.exchange = 'test'
+        self.exchange_type = 'topic'
+        self.delivery_confirmation = False
 
-        self.param = pika.ConnectionParameters(
-            host='rmq',
-            port=5672,
-            virtual_host='/',
-            credentials=pika.PlainCredentials('guest', 'guest'),
-            connection_attempts=TornadoPikaPublisher.RECONNECT_TRIES,
-            retry_delay=TornadoPikaPublisher.DELAY_TIME_SEC
-        )
+        self.amqp_url = amqp_url
 
         # Ack/Nack Fields
         self._deliveries = []
@@ -59,7 +52,7 @@ class TornadoPikaPublisher(object):
         :rtype: pika.TornadoConnection
 
         """
-        return adapters.TornadoConnection(self.param, self.on_connection_open)
+        return adapters.TornadoConnection(pika.URLParameters(self.amqp_url), self.on_connection_open)
 
     def close_connection(self):
         """This method closes the connection to RabbitMQ."""
@@ -250,6 +243,7 @@ class TornadoPikaPublisher(object):
 
         """
         self._connection = self.connect()
+        #self._connection.ioloop.start()
 
     def stop(self):
         """Stop the example by closing the channel and connection. We

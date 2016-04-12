@@ -1,12 +1,10 @@
 import signal
 import time
-
 import tornado.gen
 import tornado.ioloop
 import tornado.web
 from guppy import hpy
-
-from TornadoPikaPublisher import TornadoPikaPublisher
+from lib.TornadoPikaPublisher import TornadoPikaPublisher
 
 hp = hpy()
 
@@ -39,7 +37,7 @@ def shutdown():
 
 
 def init_publisher():
-    rmq = TornadoPikaPublisher()
+    rmq = TornadoPikaPublisher('amqp://guest:guest@rmq:5672/%2F')
     rmq.run()
 
 
